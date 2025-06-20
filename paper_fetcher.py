@@ -1,14 +1,20 @@
 
+import os
 import requests
+import getpass
 
 def get_papers(query, limit=5):
+    if not os.environ.get("SEMANTIC_SCHOLAR_API_KEY"):
+        os.environ["SEMANTIC_SCHOLAR_API_KEY"] = getpass.getpass(
+            "Enter API key for Semantic Scholar: "
+        )
     url = "https://api.semanticscholar.org/graph/v1/paper/search"
     params = {
         "query": query,
         "limit": limit,
         "fields": "title,authors,year,url,abstract,openAccessPdf"
     }
-    headers = {"x-api-key": "98w2jxk0Aa6zIXkD7153V8WrUTqdF8vD4zbFcgXo"}
+    headers = {"x-api-key": os.environ["SEMANTIC_SCHOLAR_API_KEY"]}
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:
         return response.json().get("data", [])
