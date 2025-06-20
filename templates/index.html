@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Search</title>
+  <script>
+    async function search() {
+      const query = document.getElementById("searchInput").value;
+      const response = await fetch("/search", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({query})
+      });
+      const data = await response.json();
+      document.getElementById("outputBox").innerText = data.result;
+    }
+  </script>
+</head>
+<body>
+  <h1>AI Search App</h1>
+  <input type="text" id="searchInput" placeholder="Enter your query here" />
+  <button onclick="search()">Search</button>
+  <div id="outputBox" style="margin-top:20px; border:1px solid #ccc; padding:10px;"></div>
+</body>
+</html>
