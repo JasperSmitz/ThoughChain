@@ -1,6 +1,6 @@
-# ThoughChain
+# ThoughtChain
 
-ThoughChain is a command-line tool that builds a concise literature review using Semantic Scholar and a language model. It generates search queries, downloads relevant papers, analyzes them and produces a report.
+ThoughtChain is a command-line tool that builds a concise literature review using Semantic Scholar and a language model. It generates search queries, downloads relevant papers, analyzes them and produces a report.
 
 ## Setup
 
