@@ -20,8 +20,8 @@ def download_and_extract_papers(screened_papers, folder="downloaded_papers"):
             with open(filepath, "wb") as f:
                 f.write(response.content)
 
-            doc = fitz.open(filepath)
-            full_text = "".join([page.get_text() for page in doc])
+            with fitz.open(filepath) as doc:
+                full_text = "".join([page.get_text() for page in doc])
 
             downloaded[title] = full_text
             print(f"Downloaded and extracted '{title}'")
