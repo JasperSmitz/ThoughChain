@@ -1,24 +1,205 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI Search</title>
+  <meta charset="UTF-8">
+  <title>AI Research Assistant</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    .input-group {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    input[type="text"] {
+      width: 400px;
+      max-width: 90vw;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .step-output, #outputBox {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      max-width: 800px;
+      width: 100%;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+
+    #spinner {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .spinner-border {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #333;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+
   <script>
     async function search() {
       const query = document.getElementById("searchInput").value;
-      const response = await fetch("/search", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({query})
-      });
-      const data = await response.json();
-      document.getElementById("outputBox").innerText = data.result;
+      const spinner = document.getElementById("spinner");
+
+      // Clear previous outputs
+      for (let id of ["step-queries", "step-found", "step-screened", "step-findings", "outputBox"]) {
+        document.getElementById(id).innerHTML = "";
+      }
+
+      document.getElementById("stepSection").classList.remove("hidden");
+      spinner.style.display = "block";
+
+      try {
+        await fetch("/start-search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query })
+        });
+
+        const queries = await (await fetch("/step/queries")).json();
+        document.getElementById("step-queries").textContent =
+          "Search Queries:\n" + queries.queries.join("\n");
+
+        const found = await (await fetch("/step/fetch")).json();
+        document.getElementById("step-found").textContent =
+          "Found Papers:\n" + found.found_papers.join("\n");
+
+        const screened = await (await fetch("/step/screen")).json();
+        document.getElementById("step-screened").textContent =
+          "Screened Papers:\n" + screened.screened_papers.join("\n");
+
+        const findings = await (await fetch("/step/analyze")).json();
+        document.getElementById("step-findings").textContent =
+          "Key Findings:\n" + findings.findings;
+
+        const report = await (await fetch("/step/report")).json();
+        animateMarkdown(report.report);
+      } catch (error) {
+        document.getElementById("outputBox").innerHTML =
+          "<p style='color:red;'>An error occurred. Please try again.</p>";
+      } finally {
+        spinner.style.display = "none";
+      }
+    }
+
+    function toggleSteps() {
+      const section = document.getElementById("stepSection");
+      section.classList.toggle("hidden");
+    }
+
+    function animateMarkdown(markdown) {
+      const outputBox = document.getElementById("outputBox");
+      const parsedHTML = marked.parse(markdown);
+      const tempContainer = document.createElement("div");
+      tempContainer.innerHTML = parsedHTML;
+      outputBox.innerHTML = "";
+
+      function typeNode(node, parent, done) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const text = node.textContent;
+          let i = 0;
+          const span = document.createElement("span");
+          parent.appendChild(span);
+          const interval = setInterval(() => {
+            span.textContent += text[i];
+            i++;
+            if (i >= text.length) {
+              clearInterval(interval);
+              done();
+            }
+          }, 10);
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const clone = node.cloneNode(false);
+          parent.appendChild(clone);
+          const children = Array.from(node.childNodes);
+          let idx = 0;
+          function next() {
+            if (idx < children.length) {
+              typeNode(children[idx], clone, () => {
+                idx++;
+                next();
+              });
+            } else {
+              done();
+            }
+          }
+          next();
+        } else {
+          done();
+        }
+      }
+
+      const nodes = Array.from(tempContainer.childNodes);
+      let i = 0;
+      function nextNode() {
+        if (i < nodes.length) {
+          typeNode(nodes[i], outputBox, () => {
+            i++;
+            nextNode();
+          });
+        }
+      }
+      nextNode();
     }
   </script>
 </head>
 <body>
-  <h1>AI Search App</h1>
-  <input type="text" id="searchInput" placeholder="Enter your query here" />
-  <button onclick="search()">Search</button>
-  <div id="outputBox" style="margin-top:20px; border:1px solid #ccc; padding:10px;"></div>
+  <h1>AI Research Assistant</h1>
+  <div class="input-group">
+    <input type="text" id="searchInput" placeholder="Enter your research question..." />
+    <button onclick="search()">Search</button>
+    <button onclick="toggleSteps()">Show/Hide Steps</button>
+  </div>
+
+  <div id="spinner"><div class="spinner-border"></div></div>
+
+  <div id="stepSection" class="hidden">
+    <div id="step-queries" class="step-output"></div>
+    <div id="step-found" class="step-output"></div>
+    <div id="step-screened" class="step-output"></div>
+    <div id="step-findings" class="step-output"></div>
+  </div>
+
+  <div id="outputBox"></div>
 </body>
 </html>

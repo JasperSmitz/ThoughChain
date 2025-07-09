@@ -1,0 +1,46 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+
+# dotenv environment files
+.env
+.env.*
+
+# Flask instance folder
+instance/
+.webassets-cache
+
+# PyMuPDF temp files (from fitz)
+*.xoj
+*.xoj.backup
+
+# VS Code settings (optional)
+.vscode/
+
+# macOS metadata
+.DS_Store
+
+# Reports or extracted PDFs (optional)
+downloaded_papers/
+
+# Logs (optional)
+*.log
+
+# Ignore coverage reports or test cache (if used)
+htmlcov/
+.tox/
+.nox/
+.cache/
+coverage.xml
+.pytest_cache/
+
+# Jupyter Notebook checkpoints (if ever used)
+.ipynb_checkpoints/

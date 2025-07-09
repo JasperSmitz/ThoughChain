@@ -6,7 +6,7 @@ def analyze_papers(model, question, downloaded_papers):
 
     analysis_prompt = f"""\nFor the following research question: {question}, please review the following papers and extract any useful information in regards to the question.
 
-Each paper includes a title and its text. Based on the content, return a list of key findings, insights, or conclusions that directly address the research question.
+Each paper includes a title, author and its text. Based on the content, return a list of key findings, insights, or conclusions that directly address the research question.
 
 Papers:
 {papers_to_analyze}

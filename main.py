@@ -7,30 +7,33 @@ from paper_downloader import download_and_extract_papers
 from paper_analyzer import analyze_papers
 from report_generator import generate_report
 
-def main():
+def run_pipeline(question: str) -> dict:
     model = get_model()
-    question = input("Enter your research question: ")
-
-    print("\n[1] Generating search queries...")
     search_queries = generate_queries(model, question)
-
-    print("\n[2] Fetching papers from Semantic Scholar...")
     all_papers = fetch_all_papers(search_queries)
 
-    print("\n[3] Screening relevant papers...")
+    found_titles = []
+    for papers in all_papers.values():
+        for paper in papers:
+            if "title" in paper:
+                found_titles.append(paper["title"])
+
     screened_papers = screen_papers(model, question, all_papers)
+    screened_titles = list(screened_papers.keys())
 
-    print("\n[4] Downloading and extracting PDFs...")
     downloaded_papers = download_and_extract_papers(screened_papers)
-
-    print("\n[5] Analyzing paper content...")
     findings = analyze_papers(model, question, downloaded_papers)
-
-    print("\n[6] Generating final report...")
     report = generate_report(model, question, findings)
 
-    print("\n\nGenerated Report:")
-    print(report)
+    return {
+        "queries": search_queries,
+        "found_papers": found_titles,
+        "screened_papers": screened_titles,
+        "findings": findings,
+        "report": report
+    }
 
-if __name__ == "__main__":
-    main()
+
+
+# if __name__ == "__main__":
+#     main()
