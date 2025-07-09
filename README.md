@@ -48,6 +48,17 @@ python app.py
 
 Open `http://127.0.0.1:5000/` in your browser and enter a research question. The page will display each step of the pipeline and the generated report.
 
+## Further Development
+
+Want to build on this project? Here are a few ideas:
+
+- **Add PDF parsing**: Allow users to upload their own papers and extract insights.
+- **Add Long Term Storage**: Allow users to upload their own papers and extract insights.
+- **Citation Generator**: Export results in APA/MLA/BibTeX format.
+- **LLM Model Swapping**: Use Anthropic Claude, Mistral, or open models like LLaMA via HuggingFace. You could even train models for each specific module.
+- **Multi-language Support**: Let users input questions in other languages.
+- **User Accounts**: Save searches and generated reports to a personal dashboard.
+
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
